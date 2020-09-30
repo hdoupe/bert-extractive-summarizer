@@ -9,6 +9,7 @@ argparse
 scikit-learn
 bert-extractive-summarizer==0.4.2
 Flask
+gunicorn
 flask-cors
 nltk
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz

@@ -17,10 +17,18 @@ RUN apt-get update && \
 RUN mkdir -p /opt/service
 COPY requirements-service.txt /opt/service
 COPY summarizer /opt/service/summarizer
-COPY server.py /opt/service
 WORKDIR /opt/service
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements-service.txt
 
-ENTRYPOINT ["python3", "./server.py"]
+ENV PYTHONUNBUFFERED 1
+
+COPY server /opt/service/server
+
+RUN pip3 install -e /opt/service/server
+
+RUN bert-server-download
+
+
+CMD ["python3", "/opt/service/server/server/server.py"]

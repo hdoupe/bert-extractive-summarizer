@@ -1,16 +1,52 @@
+import argparse
+import os
+
 from flask import Flask
 from flask import request, jsonify, abort, make_response
 from flask_cors import CORS
 import nltk
-nltk.download('punkt')
 from nltk import tokenize
 from typing import List
-import argparse
 from summarizer import Summarizer, TransformerSummarizer
 
 
+HOST = os.environ.get("HOST", "0.0.0.0")
+PORT = os.environ.get("PORT", "5000")
+
 app = Flask(__name__)
 CORS(app)
+
+
+def get_summarizer():
+    model = "bert-base-uncased"
+    transformer_type = None
+    transformer_key = None
+    greediness = 0.45
+    reduce_ = "mean"
+    hidden = -2
+
+    if transformer_type is not None:
+        print(f"Using Model: {transformer_type}")
+        assert transformer_key is not None, 'Transformer Key cannot be none with the transformer type'
+
+        return TransformerSummarizer(
+            transformer_type=transformer_type,
+            transformer_model_key=transformer_key,
+            hidden=hidden,
+            reduce_option=reduce_
+        )
+
+    else:
+        print(f"Using Model: {model}")
+
+        return Summarizer(
+            model=model,
+            hidden=hidden,
+            reduce_option=reduce_
+        )
+
+summarizer = get_summarizer()
+
 
 
 class Parser(object):
@@ -70,40 +106,5 @@ def convert_raw_text():
     })
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('-model', dest='model', default='bert-base-uncased', help='The model to use')
-    parser.add_argument('-transformer-type',
-                        dest='transformer_type', default=None,
-                        help='Huggingface transformer class key')
-    parser.add_argument('-transformer-key', dest='transformer_key', default=None,
-                        help='The transformer key for huggingface. For example bert-base-uncased for Bert Class')
-    parser.add_argument('-greediness', dest='greediness', help='', default=0.45)
-    parser.add_argument('-reduce', dest='reduce', help='', default='mean')
-    parser.add_argument('-hidden', dest='hidden', help='', default=-2)
-    parser.add_argument('-port', dest='port', help='', default=5000)
-    parser.add_argument('-host', dest='host', help='', default='0.0.0.0')
-
-    args = parser.parse_args()
-
-    if args.transformer_type is not None:
-        print(f"Using Model: {args.transformer_type}")
-        assert args.transformer_key is not None, 'Transformer Key cannot be none with the transformer type'
-
-        summarizer = TransformerSummarizer(
-            transformer_type=args.transformer_type,
-            transformer_model_key=args.transformer_key,
-            hidden=int(args.hidden),
-            reduce_option=args.reduce
-        )
-
-    else:
-        print(f"Using Model: {args.model}")
-
-        summarizer = Summarizer(
-            model=args.model,
-            hidden=int(args.hidden),
-            reduce_option=args.reduce
-        )
-
-    app.run(host=args.host, port=int(args.port))
+if __name__ == "__main__":
+    app.run(host=HOST, port=PORT, debug=True)
