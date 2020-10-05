@@ -31,4 +31,4 @@ RUN pip3 install -e /opt/service/server
 RUN bert-server-download
 
 
-CMD ["python3", "/opt/service/server/server/server.py"]
+CMD gunicorn --bind 0.0.0.0:$PORT server:app
