@@ -90,6 +90,7 @@ class Parser(object):
 
 @app.route('/summarize', methods=['POST'])
 def convert_raw_text():
+    print("Converting text.")
     ratio = float(request.args.get('ratio', 0.2))
     min_length = int(request.args.get('min_length', 25))
     max_length = int(request.args.get('max_length', 500))
@@ -103,6 +104,15 @@ def convert_raw_text():
 
     return jsonify({
         'summary': summary
+    })
+
+
+@app.route('/healthy', methods=['GET'])
+def healthy():
+    print("Service is healthy.")
+
+    return jsonify({
+        'status': "healthy"
     })
 
 
